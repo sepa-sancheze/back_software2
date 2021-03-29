@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     # Own
     'usuario',
     'productos',
-    'sucursal',
     'ventas',
     'compras',
 

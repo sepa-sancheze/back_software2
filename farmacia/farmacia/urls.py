@@ -23,7 +23,6 @@ urlpatterns = [
     path('auth/refresh_token/', jwt_views.TokenRefreshView.as_view(), name = 'token_refresh_pair'),
     path('usuario/', include('usuario.urls')),
     path('producto/', include('productos.urls')),
-    path('sucursal/', include('sucursal.urls')),
     path('ventas/', include('ventas.urls')),
     path('compras/', include('compras.urls')),
 ]

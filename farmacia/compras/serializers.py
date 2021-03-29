@@ -4,8 +4,13 @@ from .models import Compras, DetalleCompra
 class ComprasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Compras
-        fields = ['id', 'fecha', 'usuario', 'total', 'estado', 'sucursal']
+        fields = ['id', 'fecha', 'usuario', 'total', 'estado']
         depth = 1
+
+class ComprasSerializerPost(serializers.ModelSerializer):
+    class Meta:
+        model = Compras
+        fields = ['id', 'fecha', 'usuario', 'total', 'estado']
 
 class DetalleCompraSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,8 +22,3 @@ class DetalleCompraSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = DetalleCompra
         fields = ['id', 'compra', 'producto', 'cantidad', 'subtotal']
-
-class ComprasSerializerPost(serializers.ModelSerializer):
-    class Meta:
-        model = Compras
-        fields = ['id', 'fecha', 'usuario', 'total', 'estado', 'sucursal']

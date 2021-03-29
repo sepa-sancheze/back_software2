@@ -1,7 +1,6 @@
 from .models import Compras, DetalleCompra
 from productos.models import Producto
-from productos.models import ExistenciasProducto
-from productos.serializers import ExistenciasProductoSerializer
+from productos.serializers import ProductoSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import ComprasSerializer, DetalleCompraSerializer, ComprasSerializerPost, DetalleCompraSerializerPost
@@ -92,8 +91,7 @@ class DetalleCompraLista(APIView):
             
             serializer = DetalleCompraSerializerPost(data = request.data)
             if serializer.is_valid():    
-                id_sucursal = Compras.objects.filter(id = request.data['compra']).values('sucursal')[0]['sucursal']
-                existencias_producto_actual = ExistenciasProducto.objects.filter(producto = id_producto).filter(sucursal = id_sucursal).values('existencias')[0]['existencias']
+                existencias_producto_actual = Producto.objects.filter(id = id_producto).values('existencias')[0]['existencias']
 
                 # Actualizar total de la venta
                 compra_actualizar_object = Compras.objects.filter(id = request.data['compra']).first()
@@ -107,10 +105,10 @@ class DetalleCompraLista(APIView):
                     return Response(serializer_total_compra.errors, status = status.HTTP_400_BAD_REQUEST)            
                 
                 # Descontar productos <-> Terminado
-                productos_descontar_object = ExistenciasProducto.objects.filter(producto = id_producto).filter(sucursal = id_sucursal).first()
+                productos_descontar_object = Producto.objects.filter(producto = id_producto).first()
                 productos_descontar = model_to_dict(productos_descontar_object)['existencias'] + cantidad
                 update_data = {'existencias': productos_descontar}
-                serializer_total_descontar = ExistenciasProductoSerializer(productos_descontar_object, data=update_data, partial = True)
+                serializer_total_descontar = ProductoSerializer(productos_descontar_object, data=update_data, partial = True)
                 if serializer_total_descontar.is_valid():
                     serializer_total_descontar.save()
                 else:
@@ -167,14 +165,11 @@ class DetalleCompraUnico(APIView):
             existencias = model_to_dict(objeto)['cantidad']
             id_producto = model_to_dict(objeto)['producto']
 
-            id_sucursal_object = Compras.objects.filter(id = id_compra).first()
-            id_sucursal = model_to_dict(id_sucursal_object)['sucursal']
-
-            producto_object = ExistenciasProducto.objects.filter(producto = id_producto).filter(sucursal = id_sucursal).first()
+            producto_object = Producto.objects.filter(producto = id_producto).first()
             existencias_final = model_to_dict(producto_object)['existencias'] - existencias
             existencias_totales = {'existencias': existencias_final}
 
-            serializer_nuevas_existencias = ExistenciasProductoSerializer(producto_object, data = existencias_totales, partial = True)
+            serializer_nuevas_existencias = ProductoSerializer(producto_object, data = existencias_totales, partial = True)
             if serializer_nuevas_existencias.is_valid():
                 serializer_nuevas_existencias.save()
             else:
@@ -184,14 +179,3 @@ class DetalleCompraUnico(APIView):
             return Response(status = status.HTTP_204_NO_CONTENT)
         else:
             return Response(status = status.HTTP_403_FORBIDDEN)            
-
-class ComprasSucural(APIView):
-    permission_classes = (IsAuthenticated, )
-    
-    def get(self, request, pk, format = None):
-        if request.user.has_perm('Compras.view_compras'):
-            objeto = Compras.objects.all().filter(sucursal = pk)
-            serializer = ComprasSerializer(objeto, many = True)
-            return Response(serializer.data)
-        else:
-            return Response(status = status.HTTP_403_FORBIDDEN)

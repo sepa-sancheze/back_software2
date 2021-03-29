@@ -1,7 +1,6 @@
 from .models import Ventas, DetalleVenta
 from productos.models import Producto
-from productos.models import ExistenciasProducto
-from productos.serializers import ExistenciasProductoSerializer
+from productos.serializers import ProductoSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import VentasSerializer, DetalleVentaSerializer, VentasSerializerPost, DetalleVentaSerializerPost
@@ -92,8 +91,7 @@ class DetalleVentaLista(APIView):
             
             serializer = DetalleVentaSerializerPost(data = request.data)
             if serializer.is_valid():    
-                id_sucursal = Ventas.objects.filter(id = request.data['venta']).values('sucursal')[0]['sucursal']
-                existencias_producto_actual = ExistenciasProducto.objects.filter(producto = id_producto).filter(sucursal = id_sucursal).values('existencias')[0]['existencias']
+                existencias_producto_actual = Producto.objects.filter(id = id_producto).values('existencias')[0]['existencias']
 
                 if existencias_producto_actual >= cantidad:
                     #request.data.update({'subtotal': subtotal})
@@ -110,10 +108,10 @@ class DetalleVentaLista(APIView):
                         return Response(serializer_total_venta.errors, status = status.HTTP_400_BAD_REQUEST)            
                     
                     # Descontar productos <-> Terminado
-                    productos_descontar_object = ExistenciasProducto.objects.filter(producto = id_producto).filter(sucursal = id_sucursal).first()
+                    productos_descontar_object = Producto.objects.filter(producto = id_producto).first()
                     productos_descontar = model_to_dict(productos_descontar_object)['existencias'] - cantidad
                     update_data = {'existencias': productos_descontar}
-                    serializer_total_descontar = ExistenciasProductoSerializer(productos_descontar_object, data=update_data, partial = True)
+                    serializer_total_descontar = ProductoSerializer(productos_descontar_object, data=update_data, partial = True)
                     if serializer_total_descontar.is_valid():
                         serializer_total_descontar.save()
                     else:
@@ -172,14 +170,11 @@ class DetalleVentaUnico(APIView):
             existencias = model_to_dict(objeto)['cantidad']
             id_producto = model_to_dict(objeto)['producto']
 
-            id_sucursal_object = Ventas.objects.filter(id = id_venta).first()
-            id_sucursal = model_to_dict(id_sucursal_object)['sucursal']
-
-            producto_object = ExistenciasProducto.objects.filter(producto = id_producto).filter(sucursal = id_sucursal).first()
+            producto_object = Producto.objects.filter(producto = id_producto).first()
             existencias_final = model_to_dict(producto_object)['existencias'] + existencias
             existencias_totales = {'existencias': existencias_final}
 
-            serializer_nuevas_existencias = ExistenciasProductoSerializer(producto_object, data = existencias_totales, partial = True)
+            serializer_nuevas_existencias = ProductoSerializer(producto_object, data = existencias_totales, partial = True)
             if serializer_nuevas_existencias.is_valid():
                 serializer_nuevas_existencias.save()
             else:
@@ -189,14 +184,3 @@ class DetalleVentaUnico(APIView):
             return Response(status = status.HTTP_204_NO_CONTENT)
         else:
             return Response(status = status.HTTP_403_FORBIDDEN)            
-
-class VentasSucural(APIView):
-    permission_classes = (IsAuthenticated, )
-    
-    def get(self, request, pk, format = None):
-        if request.user.has_perm('Ventas.view_ventas'):
-            objeto = Ventas.objects.all().filter(sucursal = pk)
-            serializer = VentasSerializer(objeto, many = True)
-            return Response(serializer.data)
-        else:
-            return Response(status = status.HTTP_403_FORBIDDEN)
