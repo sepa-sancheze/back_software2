@@ -1,7 +1,7 @@
-from .models import Producto, Medida
+from .models import Producto
 from rest_framework import status, generics
 from rest_framework.views import APIView
-from .serializers import ProductoSerializer, MedidaSerializer, ProductoSerializerPost
+from .serializers import ProductoSerializer, ProductoSerializerPost
 from rest_framework.response import Response
 from django.contrib.auth.models import User, Group
 from django.http import Http404
@@ -67,11 +67,3 @@ class ProductoUnico(APIView):
             return Response(status = status.HTTP_204_NO_CONTENT)
         else:
             return Response(status = status.HTTP_403_FORBIDDEN)
-
-class MedidasLista(generics.ListCreateAPIView):
-    queryset = Medida.objects.all()
-    serializer_class = MedidaSerializer
-
-class MedidaUnico(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Medida.objects.all()
-    serializer_class = MedidaSerializer
