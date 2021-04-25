@@ -5,14 +5,11 @@ from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import VentasSerializer, DetalleVentaSerializer, VentasSerializerPost, DetalleVentaSerializerPost
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User, Group
 from django.forms.models import model_to_dict
 from django.http import Http404
 
 class VentasLista(APIView):
-
-    permission_classes = (IsAuthenticated, )
 
     def get(self, request, format = None):
         if request.user.has_perm('ventas.view_ventas'):
@@ -33,8 +30,6 @@ class VentasLista(APIView):
             return Response(status = status.HTTP_403_FORBIDDEN)
 
 class VentasUnico(APIView):
-
-    permission_classes = (IsAuthenticated, )
 
     def get_objecto(self, pk):
         try:
@@ -70,7 +65,6 @@ class VentasUnico(APIView):
             return Response(status = status.HTTP_403_FORBIDDEN)
 
 class DetalleVentaLista(APIView):
-    permission_classes = (IsAuthenticated, )
 
     def get(self, request, format = None):
         if request.user.has_perm('ventas.view_detalleventa'):
@@ -126,8 +120,6 @@ class DetalleVentaLista(APIView):
             return Response(status = status.HTTP_403_FORBIDDEN)
 
 class DetalleVentaUnico(APIView):
-
-    permission_classes = (IsAuthenticated, )
 
     def get_objecto(self, pk):
         try:

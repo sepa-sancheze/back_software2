@@ -3,13 +3,10 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from .serializers import UsuarioSerializer, RolSerializer, UsuarioSerializerGet, UsuarioSerializerPut
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User, Group
 from django.http import Http404
 
 class UsuariosLista(APIView):
-
-    permission_classes = (IsAuthenticated, )
 
     def get(self, request, format = None):
         if request.user.has_perm('usuario.view_usuario'):
@@ -49,8 +46,6 @@ class UsuariosLista(APIView):
 
 class UsuarioUnico(APIView):
 
-    permission_classes = (IsAuthenticated, )
-
     def get_objecto(self, pk):
         try:
             return Usuario.objects.get(pk = pk)
@@ -85,11 +80,9 @@ class UsuarioUnico(APIView):
             return Response(status = status.HTTP_403_FORBIDDEN)
 
 class RolLista(generics.ListCreateAPIView):
-    permission_classes = (IsAuthenticated, )
     queryset = Rol.objects.all()
     serializer_class = RolSerializer
 
 class RolUnico(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAuthenticated, )
     queryset = Rol.objects.all()
     serializer_class = RolSerializer

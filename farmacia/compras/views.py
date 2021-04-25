@@ -5,14 +5,11 @@ from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import ComprasSerializer, DetalleCompraSerializer, ComprasSerializerPost, DetalleCompraSerializerPost
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User, Group
 from django.forms.models import model_to_dict
 from django.http import Http404
 
 class ComprasLista(APIView):
-
-    permission_classes = (IsAuthenticated, )
 
     def get(self, request, format = None):
         if request.user.has_perm('Compras.view_compras'):
@@ -33,8 +30,6 @@ class ComprasLista(APIView):
             return Response(status = status.HTTP_403_FORBIDDEN)
 
 class ComprasUnico(APIView):
-
-    permission_classes = (IsAuthenticated, )
 
     def get_objecto(self, pk):
         try:
@@ -70,7 +65,6 @@ class ComprasUnico(APIView):
             return Response(status = status.HTTP_403_FORBIDDEN)
 
 class DetalleCompraLista(APIView):
-    permission_classes = (IsAuthenticated, )
 
     def get(self, request, format = None):
         if request.user.has_perm('Compras.view_detalleCompra'):
@@ -121,8 +115,6 @@ class DetalleCompraLista(APIView):
             return Response(status = status.HTTP_403_FORBIDDEN)
 
 class DetalleCompraUnico(APIView):
-
-    permission_classes = (IsAuthenticated, )
 
     def get_objecto(self, pk):
         try:

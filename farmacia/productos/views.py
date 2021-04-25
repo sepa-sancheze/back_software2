@@ -3,14 +3,11 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from .serializers import ProductoSerializer, MedidaSerializer, ProductoSerializerPost
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User, Group
 from django.http import Http404
 from django.db.models import Q
 
 class ProductoLista(APIView):
-
-    permission_classes = (IsAuthenticated, )
 
     def get(self, request, format = None):
         if request.user.has_perm('producto.view_producto'):
@@ -32,8 +29,6 @@ class ProductoLista(APIView):
             return Response(status = status.HTTP_403_FORBIDDEN)
 
 class ProductoUnico(APIView):
-
-    permission_classes = (IsAuthenticated, )
 
     def get_objecto(self, pk):
         try:
@@ -74,11 +69,9 @@ class ProductoUnico(APIView):
             return Response(status = status.HTTP_403_FORBIDDEN)
 
 class MedidasLista(generics.ListCreateAPIView):
-    permission_classes = (IsAuthenticated, )
     queryset = Medida.objects.all()
     serializer_class = MedidaSerializer
 
 class MedidaUnico(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAuthenticated, )
     queryset = Medida.objects.all()
     serializer_class = MedidaSerializer
