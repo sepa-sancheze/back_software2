@@ -10,7 +10,7 @@ class UsuariosLista(APIView):
 
     def get(self, request, format = None):
         objeto = Usuario.objects.all()
-        serializer = UsuarioSerializerGet(objeto, many = True)
+        serializer = UsuarioSerializer(objeto, many = True)
         return Response(serializer.data)
         
     
